@@ -1,4 +1,4 @@
-"""Native MySQL setup and a non-destructive upgrade for existing appointments."""
+"""MySQL database setup and schema migrations."""
 
 import os
 import re

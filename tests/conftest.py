@@ -1,8 +1,4 @@
-"""Offline route tests use SQLite only as a transactional MySQL test double.
-
-The application itself supports MySQL exclusively. This adapter checks form
-behavior and real writes/uniqueness; it does not establish MySQL compatibility.
-"""
+"""SQLite adapter for offline route tests; the application uses MySQL."""
 
 import sqlite3
 from datetime import datetime

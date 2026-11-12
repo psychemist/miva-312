@@ -1,4 +1,4 @@
-# Verified development environment. Includes runtime and test dependencies.
+# Locked application and test dependencies.
 blinker==1.9.0
 cffi==2.0.0
 click==8.1.7

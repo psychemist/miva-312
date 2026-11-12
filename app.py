@@ -66,8 +66,7 @@ def get_db():
 
 def create_app(test_config=None):
     app = Flask(__name__)
-    # A generated local key permits a first run without shipping a shared secret.
-    # Set SECRET_KEY in .env to keep sessions valid across processes/restarts.
+    # Set SECRET_KEY to keep sessions valid across restarts.
     app.config.update(
         SECRET_KEY=os.getenv("SECRET_KEY") or secrets.token_hex(32),
         MAX_CONTENT_LENGTH=32 * 1024,

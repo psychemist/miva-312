@@ -1,4 +1,4 @@
-"""Opt-in tests against a real configured MySQL server; never use the SQLite double."""
+"""Integration tests against the configured MySQL server."""
 
 import os
 import re

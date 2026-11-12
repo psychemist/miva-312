@@ -1,4 +1,4 @@
-"""Exercise setup/migration decisions without pretending to run a MySQL engine."""
+"""Database setup and migration tests."""
 
 from pathlib import Path
 
