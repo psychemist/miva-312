@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS tbl_user (
 CREATE TABLE IF NOT EXISTS tbl_appointment (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     reference VARCHAR(15) NOT NULL,
+    user_id BIGINT UNSIGNED NULL,
     owner_name VARCHAR(100) NOT NULL,
     email VARCHAR(254) NOT NULL,
     phone VARCHAR(30) NOT NULL,
@@ -23,5 +24,8 @@ CREATE TABLE IF NOT EXISTS tbl_appointment (
     status VARCHAR(20) NOT NULL DEFAULT 'pending',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY uq_appointment_reference (reference),
-    KEY ix_appointment_date (preferred_date, preferred_time)
+    KEY ix_appointment_date (preferred_date, preferred_time),
+    KEY ix_appointment_user (user_id),
+    CONSTRAINT fk_appointment_user FOREIGN KEY (user_id)
+        REFERENCES tbl_user(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

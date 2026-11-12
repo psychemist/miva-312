@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% import '_fields.html' as fields %}
+{% block title %}Welcome back — Paw & Kin{% endblock %}
+{% block content %}
+<div class="page-width signup-page">
+  <section class="signup-visual">
+    <img src="{{ url_for('static', filename='images/family-with-dog.jpg') }}" alt="A family sharing a happy moment with their dog" width="1800" height="1238">
+    <div class="signup-image-copy"><span class="eyebrow">ALWAYS PART OF THE FAMILY</span><h1>A familiar face.<br><em>A welcome return.</em></h1></div>
+  </section>
+  <section class="signup-form" aria-labelledby="login-title">
+    <a class="back-link" href="{{ url_for('index') }}">← Back to home</a>
+    <p class="eyebrow">GOOD TO SEE YOU AGAIN</p>
+    <h2 id="login-title">Welcome back.</h2>
+    <p class="signup-description">Log in to keep your pet’s appointments together in one place.</p>
+    {{ fields.error_summary(errors, form_heading='Let’s try that again.') }}
+    <form method="post" action="{{ url_for('login') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="next" value="{{ next_endpoint }}">
+      {{ fields.input('username', 'Username', {'username': username}, errors, placeholder='Your username', autocomplete='username', maxlength=50) }}
+      <div class="field-group">
+        <label class="form-label" for="password">Password</label>
+        <input class="form-control" type="password" id="password" name="password" maxlength="128" autocomplete="current-password" placeholder="Your password" required>
+      </div>
+      <button class="btn btn-dark form-submit" type="submit">Log in {{ icon('arrow') }}</button>
+    </form>
+    <p class="account-switch">New to the family? <a href="{{ url_for('signup', next=next_endpoint) }}">Create an account</a></p>
+    <div class="signup-alternative"><span>Just here for a visit?</span><a class="text-link" href="{{ url_for('book') }}">Book without an account {{ icon('arrow') }}</a></div>
+  </section>
+</div>
+{% endblock %}

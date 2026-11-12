@@ -32,14 +32,29 @@
     <nav class="page-width main-nav" aria-label="Main navigation">
       <a class="brand" href="{{ url_for('index') }}" aria-label="paw&kin. home"><span class="brand-mark">{{ icon('paw') }}</span><span>paw<span class="ampersand">&</span>kin<span class="brand-dot">.</span></span></a>
       <div class="nav-links"><a href="{{ url_for('index') }}#services">Our services</a><a href="{{ url_for('index') }}#our-story">Our story</a><a href="{{ url_for('index') }}#visit">Plan a visit</a></div>
-      <div class="nav-actions"><a class="signup-link{% if request.endpoint == 'signup' %} active{% endif %}" href="{{ url_for('signup') }}">Sign up</a><a class="btn btn-dark nav-book" href="{{ url_for('book') }}">Book a visit {{ icon('arrow') }}</a></div>
+      <div class="nav-actions">
+        {% if session.get('user_id') %}
+        <a class="signup-link{% if request.endpoint == 'appointments' %} active{% endif %}" href="{{ url_for('appointments') }}">My appointments</a>
+        <form class="nav-logout-form" method="post" action="{{ url_for('logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="nav-logout" type="submit">Log out</button></form>
+        {% else %}
+        <a class="signup-link{% if request.endpoint == 'login' %} active{% endif %}" href="{{ url_for('login') }}">Log in</a>
+        <a class="signup-link{% if request.endpoint == 'signup' %} active{% endif %}" href="{{ url_for('signup') }}">Sign up</a>
+        {% endif %}
+        <a class="btn btn-dark nav-book" href="{{ url_for('book') }}">Book a visit {{ icon('arrow') }}</a>
+      </div>
       <details class="mobile-nav">
         <summary><span class="visually-hidden">Menu</span>{{ icon('menu') }}</summary>
         <div class="mobile-menu-links">
           <a href="{{ url_for('index') }}#services">Our services</a>
           <a href="{{ url_for('index') }}#our-story">Our story</a>
           <a href="{{ url_for('index') }}#visit">Plan a visit</a>
+          {% if session.get('user_id') %}
+          <a href="{{ url_for('appointments') }}">My appointments</a>
+          <form method="post" action="{{ url_for('logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="nav-logout" type="submit">Log out</button></form>
+          {% else %}
+          <a href="{{ url_for('login') }}">Log in</a>
           <a href="{{ url_for('signup') }}">Sign up</a>
+          {% endif %}
         </div>
       </details>
     </nav>

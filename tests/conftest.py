@@ -30,10 +30,23 @@ class Cursor:
         except sqlite3.IntegrityError as error:
             raise pymysql.IntegrityError(1062, "Duplicate entry") from error
 
+    @property
+    def lastrowid(self):
+        return self.cursor.lastrowid
+
+    def fetchone(self):
+        row = self.cursor.fetchone()
+        return dict(row) if row is not None else None
+
+    def fetchall(self):
+        return [dict(row) for row in self.cursor.fetchall()]
+
 
 class Connection:
     def __init__(self, path):
         self.connection = sqlite3.connect(path)
+        self.connection.row_factory = sqlite3.Row
+        self.connection.execute("PRAGMA foreign_keys=ON")
 
     def cursor(self):
         return Cursor(self.connection)
@@ -58,7 +71,8 @@ def database(tmp_path):
                 password TEXT
             );
             CREATE TABLE tbl_appointment (
-                id INTEGER PRIMARY KEY, reference TEXT UNIQUE, owner_name TEXT,
+                id INTEGER PRIMARY KEY, reference TEXT UNIQUE,
+                user_id INTEGER REFERENCES tbl_user(id) ON DELETE SET NULL, owner_name TEXT,
                 email TEXT, phone TEXT, pet_name TEXT, species TEXT, service TEXT,
                 preferred_date TEXT, preferred_time TEXT, notes TEXT,
                 status TEXT DEFAULT 'pending'

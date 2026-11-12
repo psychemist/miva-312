@@ -14,7 +14,7 @@ def token(client, path):
 
 
 def post(client, path, data, **kwargs):
-    return client.post(path, data={**data, "csrf_token": token(client, path)}, **kwargs)
+    return client.post(path, data={**data, "csrf_token": token(client, "/book" if path == "/logout" else path)}, **kwargs)
 
 
 @pytest.mark.parametrize("path", ["/", "/signup", "/book", "/book?service=grooming"])
@@ -35,6 +35,9 @@ def test_signup_stores_salted_hash_and_rejects_duplicate(client, database):
     assert stored.startswith("scrypt:")
     assert check_password_hash(stored, password)
     assert not check_password_hash(stored, "wrong-password")
+    with client.session_transaction() as session:
+        assert session["user_id"] > 0
+    assert post(client, "/logout", {}).status_code == 303
     response = post(client, "/signup", {"username": "AMARA", "password": password})
     assert response.status_code == 422
     assert "already taken" in response.text
@@ -119,7 +122,7 @@ def test_sql_and_html_payloads_are_data(client, database, booking_data):
     assert "&lt;script&gt;" in response.text
 
 
-@pytest.mark.parametrize("path", ["/signup", "/book"])
+@pytest.mark.parametrize("path", ["/signup", "/login", "/logout", "/book"])
 def test_csrf_required(client, path):
     assert client.post(path, data={}).status_code == 400
     assert client.post(path, data={"csrf_token": "forged"}).status_code == 400
