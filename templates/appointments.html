@@ -1,26 +1,83 @@
 {% extends "base.html" %}
+
 {% block title %}My appointments — Paw & Kin{% endblock %}
+
 {% block content %}
-<section class="page-width account-page" aria-labelledby="appointments-title">
-  <div class="account-heading">
-    <div><p class="eyebrow">CARE, KEPT TOGETHER</p><h1 id="appointments-title">My appointments.</h1><p>Signed in as <strong>{{ current_user.username }}</strong>. A little space for your companion’s care.</p></div>
-    <a class="btn btn-dark" href="{{ url_for('book') }}">Book a visit {{ icon('arrow') }}</a>
-  </div>
-  {% if unavailable %}
-    <div class="notice notice-error" role="alert"><div><strong>We couldn’t load your appointments.</strong><p>Your bookings haven’t changed. Please try again shortly.</p><a class="text-link" href="{{ url_for('appointments') }}">Try again {{ icon('arrow') }}</a></div></div>
-  {% elif bookings %}
-    <p class="account-help">Requests marked “Awaiting confirmation” still need to be confirmed by our team. All times are West Africa Time (UTC+1).</p>
-    <div class="appointment-list">
-    {% for booking in bookings %}
-      <article class="appointment-card" aria-labelledby="pet-{{ loop.index }}">
-        <div class="appointment-top"><div><p class="eyebrow">{{ booking.reference }}</p><h2 id="pet-{{ loop.index }}">{{ booking.pet_name }}</h2><p>{{ booking.species }} · {{ services.get(booking.service, booking.service) }}</p></div><span class="appointment-status">{{ 'Awaiting confirmation' if booking.status == 'pending' else booking.status|replace('_', ' ')|capitalize }}</span></div>
-        <dl class="appointment-details"><div><dt>Preferred date</dt><dd>{{ booking.date_label }}</dd></div><div><dt>Preferred time</dt><dd>{{ booking.time_label }} · WAT</dd></div></dl>
-        {% if booking.notes %}<div class="appointment-notes"><strong>Your notes</strong><p>{{ booking.notes }}</p></div>{% endif %}
-      </article>
-    {% endfor %}
+  <section class="page-width account-page" aria-labelledby="appointments-title">
+    <div class="account-heading">
+      <div>
+        <p class="eyebrow">CARE, KEPT TOGETHER</p>
+        <h1 id="appointments-title">My appointments.</h1>
+        <p>
+          Signed in as <strong>{{ current_user.username }}</strong>.
+          A little space for your companion’s care.
+        </p>
+      </div>
+      <a class="btn btn-dark" href="{{ url_for('book') }}">
+        Book a visit {{ icon('arrow') }}
+      </a>
     </div>
-  {% else %}
-    <div class="account-empty">{{ icon('calendar') }}<h2>Let’s plan their first visit.</h2><p>Appointments you request while signed in will appear here. Earlier guest requests aren’t automatically added to your account.</p><a class="text-link" href="{{ url_for('book') }}">Plan a visit {{ icon('arrow') }}</a></div>
-  {% endif %}
-</section>
+
+    {% if unavailable %}
+      <div class="notice notice-error" role="alert">
+        <div>
+          <strong>We couldn’t load your appointments.</strong>
+          <p>Your bookings haven’t changed. Please try again shortly.</p>
+          <a class="text-link" href="{{ url_for('appointments') }}">
+            Try again {{ icon('arrow') }}
+          </a>
+        </div>
+      </div>
+    {% elif bookings %}
+      <p class="account-help">
+        Requests marked “Awaiting confirmation” still need to be confirmed by our team.
+        All times are West Africa Time (UTC+1).
+      </p>
+      <div class="appointment-list">
+        {% for booking in bookings %}
+          <article class="appointment-card" aria-labelledby="pet-{{ loop.index }}">
+            <div class="appointment-top">
+              <div>
+                <p class="eyebrow">{{ booking.reference }}</p>
+                <h2 id="pet-{{ loop.index }}">{{ booking.pet_name }}</h2>
+                <p>{{ booking.species }} · {{ services.get(booking.service, booking.service) }}</p>
+              </div>
+              <span class="appointment-status">
+                {{ 'Awaiting confirmation' if booking.status == 'pending'
+                  else booking.status|replace('_', ' ')|capitalize }}
+              </span>
+            </div>
+            <dl class="appointment-details">
+              <div>
+                <dt>Preferred date</dt>
+                <dd>{{ booking.date_label }}</dd>
+              </div>
+              <div>
+                <dt>Preferred time</dt>
+                <dd>{{ booking.time_label }} · WAT</dd>
+              </div>
+            </dl>
+            {% if booking.notes %}
+              <div class="appointment-notes">
+                <strong>Your notes</strong>
+                <p>{{ booking.notes }}</p>
+              </div>
+            {% endif %}
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="account-empty">
+        {{ icon('calendar') }}
+        <h2>Let’s plan their first visit.</h2>
+        <p>
+          Appointments you request while signed in will appear here.
+          Earlier guest requests aren’t automatically added to your account.
+        </p>
+        <a class="text-link" href="{{ url_for('book') }}">
+          Plan a visit {{ icon('arrow') }}
+        </a>
+      </div>
+    {% endif %}
+  </section>
 {% endblock %}

@@ -1,18 +1,185 @@
 {% extends "base.html" %}
 {% import '_fields.html' as fields %}
+
 {% block title %}Book an appointment — Paw & Kin{% endblock %}
+
 {% block content %}
-<div class="page-width form-page">
-  <aside class="form-intro"><a class="back-link" href="{{ url_for('index') }}">← Back to home</a><p class="eyebrow">LET’S GET TO KNOW YOUR PET</p><h1>A little time.<br><em>A happier pet.</em></h1><p>Big personalities. Little worries. We’re here for all of it. Tell us what brings you in and we’ll take it from there.</p><div class="booking-promises"><div>{{ icon('calendar') }}<span><strong>A time that works for you</strong>Choose your preferred date and time.</span></div><div>{{ icon('heart') }}<span><strong>Care starts with listening</strong>Tell us anything you’d like us to know.</span></div><div>{{ icon('check') }}<span><strong>We’ll confirm together</strong>Our team will contact you before your visit.</span></div></div><div class="intro-photo"><img src="{{ url_for('static', filename='images/family-with-dog.jpg') }}" alt="A family relaxing at home with their pet dog" width="1800" height="1238"><span>For every member of your family.</span></div></aside>
-  <section class="form-panel" aria-labelledby="booking-title"><div class="form-panel-heading"><span class="eyebrow">A GOOD DAY STARTS WITH GOOD CARE</span><h2 id="booking-title">Book an appointment</h2><p>{% if current_user %}Signed in as <strong>{{ current_user.username }}</strong>. This request will be saved to your account.{% else %}Book as a guest, or <a href="{{ url_for('login', next='book') }}">log in</a> to save this appointment to your account.{% endif %}</p></div>
-    {{ fields.error_summary(errors) }}
-    <form method="post" action="{{ url_for('book') }}">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <fieldset><legend><span>01</span> About you</legend><div class="row g-3"><div class="col-12">{{ fields.input('owner_name', 'Your full name', values, errors, placeholder='e.g. Amara Okafor', autocomplete='name') }}</div><div class="col-sm-6">{{ fields.input('email', 'Email address', values, errors, type='email', placeholder='you@example.com', autocomplete='email', maxlength=254) }}</div><div class="col-sm-6">{{ fields.input('phone', 'Phone number', values, errors, type='tel', placeholder='+234 800 000 0000', autocomplete='tel', maxlength=30) }}</div></div></fieldset>
-      <fieldset><legend><span>02</span> Your companion</legend><div class="row g-3"><div class="col-sm-6">{{ fields.input('pet_name', 'Pet’s name', values, errors, placeholder='What do you call them?', maxlength=80) }}</div><div class="col-sm-6">{% set species_options = [] %}{% for item in species %}{% set _ = species_options.append((item, item)) %}{% endfor %}{{ fields.select('species', 'Species', species_options, values, errors, 'Select a species') }}</div></div></fieldset>
-      <fieldset><legend><span>03</span> Plan your visit</legend><div class="row g-3"><div class="col-12">{{ fields.select('service', 'How can we help?', services.items(), values, errors, 'Choose a service') }}</div><div class="col-sm-6"><div class="field-group"><label for="date" class="form-label">Preferred date</label><input class="form-control{% if errors.get('date') %} is-invalid{% endif %}" type="date" name="date" id="date" min="{{ today }}" value="{{ values.date }}" required aria-describedby="date-help{% if errors.get('date') %} date-error{% endif %}"{% if errors.get('date') %} aria-invalid="true"{% endif %}><p class="field-hint" id="date-help">Monday to Saturday</p>{% if errors.get('date') %}<p class="field-error" id="date-error">{{ errors.date }}</p>{% endif %}</div></div><div class="col-sm-6">{% set time_options = [] %}{% for time in times %}{% set parts = time.split(':') %}{% set hour = parts[0]|int %}{% set label = ((hour - 1) % 12 + 1)|string + ':' + parts[1] + (' am' if hour < 12 else ' pm') %}{% set _ = time_options.append((time, label)) %}{% endfor %}{{ fields.select('time', 'Preferred time (WAT)', time_options, values, errors, 'Choose a time') }}</div><div class="col-12 field-group"><label for="notes" class="form-label">Anything else we should know? <span class="optional">Optional</span></label><textarea class="form-control{% if errors.get('notes') %} is-invalid{% endif %}" name="notes" id="notes" rows="3" maxlength="1000" placeholder="A nervous first visit? A question about their health? We’re listening."{% if errors.get('notes') %} aria-invalid="true" aria-describedby="notes-error"{% endif %}>{{ values.notes }}</textarea>{% if errors.get('notes') %}<p class="field-error" id="notes-error">{{ errors.notes }}</p>{% endif %}</div></div></fieldset>
-      <div class="booking-disclaimer">This is an appointment request. We’ll contact you by phone or email to confirm availability. All times are West Africa Time (UTC+1).</div><button class="btn btn-dark form-submit" type="submit">Request an appointment {{ icon('arrow') }}</button><p class="form-footnote">We’ll only use these details to arrange and manage your pet’s visit.</p>
-    </form>
-  </section>
-</div>
+  <div class="page-width form-page">
+    <aside class="form-intro">
+      <a class="back-link" href="{{ url_for('index') }}">← Back to home</a>
+      <p class="eyebrow">LET’S GET TO KNOW YOUR PET</p>
+      <h1>A little time.<br><em>A happier pet.</em></h1>
+      <p>
+        Big personalities. Little worries. We’re here for all of it.
+        Tell us what brings you in and we’ll take it from there.
+      </p>
+      <div class="booking-promises">
+        <div>
+          {{ icon('calendar') }}
+          <span><strong>A time that works for you</strong>Choose your preferred date and time.</span>
+        </div>
+        <div>
+          {{ icon('heart') }}
+          <span><strong>Care starts with listening</strong>Tell us anything you’d like us to know.</span>
+        </div>
+        <div>
+          {{ icon('check') }}
+          <span><strong>We’ll confirm together</strong>Our team will contact you before your visit.</span>
+        </div>
+      </div>
+      <div class="intro-photo">
+        <img
+          src="{{ url_for('static', filename='images/family-with-dog.jpg') }}"
+          alt="A family relaxing at home with their pet dog"
+          width="1800"
+          height="1238"
+        >
+        <span>For every member of your family.</span>
+      </div>
+    </aside>
+
+    <section class="form-panel" aria-labelledby="booking-title">
+      <div class="form-panel-heading">
+        <span class="eyebrow">A GOOD DAY STARTS WITH GOOD CARE</span>
+        <h2 id="booking-title">Book an appointment</h2>
+        <p>
+          {% if current_user %}
+            Signed in as <strong>{{ current_user.username }}</strong>.
+            This request will be saved to your account.
+          {% else %}
+            Book as a guest, or <a href="{{ url_for('login', next='book') }}">log in</a>
+            to save this appointment to your account.
+          {% endif %}
+        </p>
+      </div>
+
+      {{ fields.error_summary(errors) }}
+
+      <form method="post" action="{{ url_for('book') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <fieldset>
+          <legend><span>01</span> About you</legend>
+          <div class="row g-3">
+            <div class="col-12">
+              {{ fields.input(
+                'owner_name', 'Your full name', values, errors,
+                placeholder='e.g. Amara Okafor', autocomplete='name'
+              ) }}
+            </div>
+            <div class="col-sm-6">
+              {{ fields.input(
+                'email', 'Email address', values, errors, type='email',
+                placeholder='you@example.com', autocomplete='email', maxlength=254
+              ) }}
+            </div>
+            <div class="col-sm-6">
+              {{ fields.input(
+                'phone', 'Phone number', values, errors, type='tel',
+                placeholder='+234 800 000 0000', autocomplete='tel', maxlength=30
+              ) }}
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend><span>02</span> Your companion</legend>
+          <div class="row g-3">
+            <div class="col-sm-6">
+              {{ fields.input(
+                'pet_name', 'Pet’s name', values, errors,
+                placeholder='What do you call them?', maxlength=80
+              ) }}
+            </div>
+            <div class="col-sm-6">
+              {% set species_options = [] %}
+              {% for item in species %}
+                {% set _ = species_options.append((item, item)) %}
+              {% endfor %}
+              {{ fields.select(
+                'species', 'Species', species_options, values, errors, 'Select a species'
+              ) }}
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend><span>03</span> Plan your visit</legend>
+          <div class="row g-3">
+            <div class="col-12">
+              {{ fields.select(
+                'service', 'How can we help?', services.items(), values, errors, 'Choose a service'
+              ) }}
+            </div>
+            <div class="col-sm-6">
+              <div class="field-group">
+                <label for="date" class="form-label">Preferred date</label>
+                <input
+                  class="form-control{% if errors.get('date') %} is-invalid{% endif %}"
+                  type="date"
+                  name="date"
+                  id="date"
+                  min="{{ today }}"
+                  value="{{ values.date }}"
+                  required
+                  aria-describedby="date-help{% if errors.get('date') %} date-error{% endif %}"
+                  {% if errors.get('date') %}
+                    aria-invalid="true"
+                  {% endif %}
+                >
+                <p class="field-hint" id="date-help">Monday to Saturday</p>
+                {% if errors.get('date') %}
+                  <p class="field-error" id="date-error">{{ errors.date }}</p>
+                {% endif %}
+              </div>
+            </div>
+            <div class="col-sm-6">
+              {% set time_options = [] %}
+              {% for time in times %}
+                {% set parts = time.split(':') %}
+                {% set hour = parts[0]|int %}
+                {% set label = (
+                  ((hour - 1) % 12 + 1)|string + ':' + parts[1]
+                  + (' am' if hour < 12 else ' pm')
+                ) %}
+                {% set _ = time_options.append((time, label)) %}
+              {% endfor %}
+              {{ fields.select(
+                'time', 'Preferred time (WAT)', time_options, values, errors, 'Choose a time'
+              ) }}
+            </div>
+            <div class="col-12 field-group">
+              <label for="notes" class="form-label">
+                Anything else we should know? <span class="optional">Optional</span>
+              </label>
+              <textarea
+                class="form-control{% if errors.get('notes') %} is-invalid{% endif %}"
+                name="notes"
+                id="notes"
+                rows="3"
+                maxlength="1000"
+                placeholder="A nervous first visit? A question about their health? We’re listening."
+                {% if errors.get('notes') %}
+                  aria-invalid="true"
+                  aria-describedby="notes-error"
+                {% endif %}
+              >{{ values.notes }}</textarea>
+              {% if errors.get('notes') %}
+                <p class="field-error" id="notes-error">{{ errors.notes }}</p>
+              {% endif %}
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="booking-disclaimer">
+          This is an appointment request. We’ll contact you by phone or email to confirm availability.
+          All times are West Africa Time (UTC+1).
+        </div>
+        <button class="btn btn-dark form-submit" type="submit">
+          Request an appointment {{ icon('arrow') }}
+        </button>
+        <p class="form-footnote">We’ll only use these details to arrange and manage your pet’s visit.</p>
+      </form>
+    </section>
+  </div>
 {% endblock %}

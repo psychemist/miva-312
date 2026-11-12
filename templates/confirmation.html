@@ -1,5 +1,55 @@
 {% extends "base.html" %}
+
 {% block title %}Request received — Paw & Kin{% endblock %}
+
 {% block content %}
-<section class="page-width confirmation" aria-labelledby="confirmation-title"><div class="confirmation-mark">{{ icon('check') }}</div><p class="eyebrow">ONE STEP CLOSER TO A GOOD DAY</p><h1 id="confirmation-title">You’re on our radar.<br><em>And in good hands.</em></h1><p>Your appointment request has been received. Our team will contact you by phone or email to confirm your visit.</p><div class="receipt"><div class="receipt-heading"><span>YOUR APPOINTMENT REQUEST</span><span class="pending-label">Awaiting confirmation</span></div><dl><div><dt>Reference</dt><dd>{{ receipt.reference }}</dd></div><div><dt>Service</dt><dd>{{ receipt.service }}</dd></div><div><dt>Preferred date</dt><dd>{{ receipt.date }}</dd></div><div><dt>Preferred time</dt><dd>{{ receipt.time }} · WAT</dd></div></dl><p>{{ icon('clock') }} Please wait for confirmation before coming in.</p></div>{% if current_user %}<a class="btn btn-dark btn-large" href="{{ url_for('appointments') }}">My appointments {{ icon('arrow') }}</a>{% else %}<a class="btn btn-dark btn-large" href="{{ url_for('index') }}">Back to home {{ icon('arrow') }}</a><p class="guest-account-note">For future visits, <a href="{{ url_for('login') }}">log in</a> before booking to keep your appointments together.</p>{% endif %}</section>
+  <section class="page-width confirmation" aria-labelledby="confirmation-title">
+    <div class="confirmation-mark">{{ icon('check') }}</div>
+    <p class="eyebrow">ONE STEP CLOSER TO A GOOD DAY</p>
+    <h1 id="confirmation-title">You’re on our radar.<br><em>And in good hands.</em></h1>
+    <p>
+      Your appointment request has been received.
+      Our team will contact you by phone or email to confirm your visit.
+    </p>
+
+    <div class="receipt">
+      <div class="receipt-heading">
+        <span>YOUR APPOINTMENT REQUEST</span>
+        <span class="pending-label">Awaiting confirmation</span>
+      </div>
+      <dl>
+        <div>
+          <dt>Reference</dt>
+          <dd>{{ receipt.reference }}</dd>
+        </div>
+        <div>
+          <dt>Service</dt>
+          <dd>{{ receipt.service }}</dd>
+        </div>
+        <div>
+          <dt>Preferred date</dt>
+          <dd>{{ receipt.date }}</dd>
+        </div>
+        <div>
+          <dt>Preferred time</dt>
+          <dd>{{ receipt.time }} · WAT</dd>
+        </div>
+      </dl>
+      <p>{{ icon('clock') }} Please wait for confirmation before coming in.</p>
+    </div>
+
+    {% if current_user %}
+      <a class="btn btn-dark btn-large" href="{{ url_for('appointments') }}">
+        My appointments {{ icon('arrow') }}
+      </a>
+    {% else %}
+      <a class="btn btn-dark btn-large" href="{{ url_for('index') }}">
+        Back to home {{ icon('arrow') }}
+      </a>
+      <p class="guest-account-note">
+        For future visits, <a href="{{ url_for('login') }}">log in</a>
+        before booking to keep your appointments together.
+      </p>
+    {% endif %}
+  </section>
 {% endblock %}
