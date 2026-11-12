@@ -1,0 +1,13 @@
+{% macro input(name, label, values, errors, type='text', placeholder='', autocomplete='', maxlength=100, required=true) -%}
+<div class="field-group">
+  <label for="{{ name }}" class="form-label">{{ label }}{% if not required %}<span class="optional">Optional</span>{% endif %}</label>
+  <input class="form-control{% if errors.get(name) %} is-invalid{% endif %}" type="{{ type }}" id="{{ name }}" name="{{ name }}" value="{{ values.get(name, '') }}" placeholder="{{ placeholder }}" maxlength="{{ maxlength }}"{% if autocomplete %} autocomplete="{{ autocomplete }}"{% endif %}{% if required %} required{% endif %}{% if errors.get(name) %} aria-invalid="true" aria-describedby="{{ name }}-error"{% endif %}>
+  {% if errors.get(name) %}<p class="field-error" id="{{ name }}-error">{{ errors[name] }}</p>{% endif %}
+</div>
+{%- endmacro %}
+{% macro select(name, label, options, values, errors, placeholder) -%}
+<div class="field-group"><label for="{{ name }}" class="form-label">{{ label }}</label><select class="form-select{% if errors.get(name) %} is-invalid{% endif %}" id="{{ name }}" name="{{ name }}" required{% if errors.get(name) %} aria-invalid="true" aria-describedby="{{ name }}-error"{% endif %}><option value="">{{ placeholder }}</option>{% for value, text in options %}<option value="{{ value }}"{% if values.get(name) == value %} selected{% endif %}>{{ text }}</option>{% endfor %}</select>{% if errors.get(name) %}<p class="field-error" id="{{ name }}-error">{{ errors[name] }}</p>{% endif %}</div>
+{%- endmacro %}
+{% macro error_summary(errors) -%}
+{% if errors %}<div class="notice notice-error" role="alert" tabindex="-1"><div><strong>{% if errors.get('form') %}A little trouble saving.{% else %}A few details need your attention.{% endif %}</strong>{% if errors.get('form') %}<p>{{ errors.form }}</p>{% endif %}{% if errors|length > (1 if errors.get('form') else 0) %}<ul>{% for name, message in errors.items() if name != 'form' %}<li><a href="#{{ name }}">{{ message }}</a></li>{% endfor %}</ul>{% endif %}</div></div>{% endif %}
+{%- endmacro %}

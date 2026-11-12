@@ -1,0 +1,3 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — Paw & Kin{% endblock %}
+{% block content %}<section class="page-width confirmation error-page"><div class="confirmation-mark">{{ icon('paw') }}</div><p class="eyebrow">LET’S GET YOU BACK ON TRACK</p><h1>{{ title }}</h1><p>{{ message }}</p><a class="btn btn-dark btn-large" href="{{ url_for(destination) }}">{{ action }} {{ icon('arrow') }}</a></section>{% endblock %}
