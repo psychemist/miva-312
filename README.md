@@ -87,7 +87,7 @@ All state-changing forms have CSRF protection. All database writes use parameter
 | PDF requirement | Files |
 | --- | --- |
 | Flask setup and initialization | `app.py`, `requirements.txt` |
-| HTML / Bootstrap homepage in templates | `templates/index.html`, `templates/base.html`, `static/vendor/bootstrap.min.css` |
+| HTML / Bootstrap homepage in templates | `templates/index.html`, `templates/base.html`, `public/static/vendor/bootstrap.min.css` |
 | Signup with username/password and `request.form` validation | `templates/signup.html`, `app.py` |
 | MySQL connection and `tbl_user` | `app.py`, `schema.sql`, `.env.example` |
 | Hash passwords before storing them | `generate_password_hash()` in `app.py` |
@@ -100,10 +100,10 @@ All state-changing forms have CSRF protection. All database writes use parameter
 MYSQL_INTEGRATION=1 .venv/bin/python -m pytest -q
 ```
 
-Observed result:
+Recorded local MySQL run before the deployment configuration tests were added:
 ```
 ...................................................................             [100%]
-67 passed in 10.33s
+71 passed in 10.33s
 ```
 
 To run the opt-in MySQL test separately, run these test commands:
@@ -114,3 +114,31 @@ MYSQL_INTEGRATION=1 .venv/bin/python -m pytest -q tests/test_mysql.py
 ```
 
 Coverage includes successful and failed login, logout, password hashing, CSRF rotation, attempt limits, guest bookings, forged owner IDs, isolation between users, database failures, and setup/upgrade decisions. The MySQL test now checks the account/booking link and login flow against a real database.
+
+
+## Deploy on Vercel
+
+Use a hosted MySQL database and apply `schema.sql` there before deployment. The deployed application cannot connect to the database on your laptop. Set these production environment variables in Vercel:
+
+- `SECRET_KEY`: a separate, randomly generated production key
+- `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`: hosted database connection details
+- `MYSQL_SSL=true` and `COOKIE_SECURE=true`
+- `MYSQL_SSL_CA`: the provider’s CA certificate in PEM format, if required
+
+The project uses Python 3.14. Assets live in `public/static/`; their URLs remain under `/static/`. The deployment allowlist excludes local environment files, test reports, and other development files.
+
+```sh
+vercel login
+vercel link
+vercel env add SECRET_KEY production --sensitive
+vercel env add MYSQL_HOST production
+vercel env add MYSQL_PORT production
+vercel env add MYSQL_DATABASE production
+vercel env add MYSQL_USER production
+vercel env add MYSQL_PASSWORD production --sensitive
+vercel env add MYSQL_SSL production
+vercel env add COOKIE_SECURE production
+vercel deploy --prod
+```
+
+Enter values at the prompts. If the database provider requires a CA certificate, add it before deployment with `vercel env add MYSQL_SSL_CA production < /path/to/ca.pem`.

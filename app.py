@@ -15,7 +15,7 @@ from flask import Flask, flash, g, redirect, render_template, request, session, 
 from flask_wtf.csrf import CSRFError, CSRFProtect
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from db_setup import register_db_commands
+from db_setup import mysql_tls_options, register_db_commands
 
 load_dotenv()
 
@@ -60,12 +60,13 @@ def get_db():
             read_timeout=5,
             write_timeout=5,
             autocommit=False,
+            **mysql_tls_options(),
         )
     return g.db
 
 
 def create_app(test_config=None):
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder="public/static", static_url_path="/static")
     # Set SECRET_KEY to keep sessions valid across restarts.
     app.config.update(
         SECRET_KEY=os.getenv("SECRET_KEY") or secrets.token_hex(32),

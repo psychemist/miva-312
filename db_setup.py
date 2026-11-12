@@ -2,10 +2,22 @@
 
 import os
 import re
+import ssl
 from pathlib import Path
 
 import click
 import pymysql
+
+
+def mysql_tls_options():
+    """Use certificate and hostname verification for hosted MySQL connections."""
+    enabled = os.getenv("MYSQL_SSL", "false").strip().lower()
+    if enabled not in {"true", "false"}:
+        raise ValueError("MYSQL_SSL must be true or false.")
+    if enabled == "false":
+        return {}
+    ca = os.getenv("MYSQL_SSL_CA") or None
+    return {"ssl": ssl.create_default_context(cadata=ca)}
 
 
 def initialize_tables(db, root):
@@ -60,6 +72,7 @@ def register_db_commands(app, get_db):
                 port=int(os.getenv("MYSQL_PORT", "3306")),
                 user=admin_user, password=admin_password,
                 charset="utf8mb4", autocommit=True, connect_timeout=5,
+                **mysql_tls_options(),
             )
             with admin.cursor() as cursor:
                 # Only the validated identifier is interpolated; account names
